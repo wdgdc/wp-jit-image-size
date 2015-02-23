@@ -112,4 +112,4 @@ final class WP_JIT_Image_Size {
 	}
 }
 
-WP_JIT_Image_Sizes::instance();
+WP_JIT_Image_Size::instance();
