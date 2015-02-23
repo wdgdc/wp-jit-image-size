@@ -1,17 +1,17 @@
 <?php 
 
 /*
-Plugin Name: JIT Image Sizes
-Plugin URI: http://shanerdesign.net/wordpress/wp-jit-image-sizes
+Plugin Name: JIT Image Size
+Plugin URI: http://github.com/kshaner/wp-jit-image-size
 Description: Only create image sizes the first time the image size is requested
 Author: Kurtis Shaner
-Author URI: http://twitter.com/shanerdesign
+Author URI: http://github.com/kshaner
 Version: 0.0.1
-Text Domain: wp-jit-image-sizes
-License: TBD
+Text Domain: wp-jit-image-size
+License: MIT
 */
 
-final class WP_JIT_Image_Sizes {
+final class WP_JIT_Image_Size {
 	
 	private static $_instance;
 	private $jit_metadata;
