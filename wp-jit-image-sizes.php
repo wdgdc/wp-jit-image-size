@@ -2,10 +2,10 @@
 
 /*
 Plugin Name: JIT Image Size
-Plugin URI: http://github.com/kshaner/wp-jit-image-size
+Plugin URI: http://github.com/WDGDC/wp-jit-image-size
 Description: Only create image sizes the first time the image size is requested
-Author: Kurtis Shaner
-Author URI: http://github.com/kshaner
+Author: WDGDC, Kurtis Shaner
+Author URI: http://github.com/WDGDC
 Version: 0.0.1
 Text Domain: wp-jit-image-size
 License: MIT
