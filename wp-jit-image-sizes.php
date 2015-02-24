@@ -43,27 +43,15 @@ final class WP_JIT_Image_Size {
 		add_settings_section('wp-jit-image-size-settings', '', null, 'wp-jit-image-sizes');
 		register_setting('wp-jit-image-sizes', 'wp-jit-image-size-whitelist');
 		add_settings_field('wp-jit-image-size-whitelist', 'Whitelist Image Sizes to Generate', array($this, 'setting_wp_jit_image_size_whitelist'), 'wp-jit-image-sizes', 'wp-jit-image-size-settings');
-		add_settings_field('wp-jit-image-size-delete-thumbs', 'Delete All Thumbnails', array($this, 'setting_wp_jit_image_size_delete_thumbs'), 'wp-jit-image-sizes', 'wp-jit-image-size-settings');
+		// add_settings_field('wp-jit-image-size-delete-thumbs', 'Delete All Thumbnails', array($this, 'setting_wp_jit_image_size_delete_thumbs'), 'wp-jit-image-sizes', 'wp-jit-image-size-settings');
 	}
 
-	public function setting_wp_jit_image_size_delete_thumbs() {
-		if (!shell_exec('pwd')) : ?>
-		
-		<div class="error settings-error">
-			<p>PHP Exec support is needed to delete all thumbnails</p>
-		</div>
-		
-		<?php else: ?>
-		<label for="wp-jit-image-size-delete-thumbs">
-			<input type="checkbox" name="wp-jit-image-size-delete-thumbs" id="wp-jit-image-size-delete-thumbs">
-		</label>
-		<p><em>This will delete all thumbnails that are not whitelisted, AND (re) generate all thumbnails that are whitelisted.</em></p>
-
+	public function setting_wp_jit_image_size_delete_thumbs() { ?>
 		<div id="regenlog"></div>
 		<script>
 			(function() {
 				var log = document.getElementById('regenlog');
-				var check = document.getElementById('wp-jit-image-size-delete-thumbs');
+				var btn = document.getElementById('wp-jit-image-size-delete-thumbs');
 				var loading = document.createElement('img');
 				var nonce;
 				loading.style.display = 'inlineBlock';
@@ -72,48 +60,43 @@ final class WP_JIT_Image_Size {
 				loading.src = '<?php echo get_admin_url(); ?>images/spinner.gif';
 				var handleCheck = function(e) {
 					var xhr;
-					if (this.checked) {
-						if (confirm('Are you sure you\'d like to save the whitelist and delete all thumbnails?')) {
-							e.preventDefault();
+					if (confirm('This will delete all thumbnails that are not whitelisted, AND (re) generate all thumbnails that are whitelisted. Are you sure?')) {
+						e.preventDefault();
 
-							var sizes = document.querySelectorAll('input[type="checkbox"][name*="jit-image-size-whitelist["]');
-							var whitelist = '';
-							[].forEach.call(sizes, function(size) {
-								if (size.checked) {
-									if (whitelist !== '') whitelist += '&';
-									whitelist += encodeURIComponent(size.name) + '=' + encodeURIComponent('on');
-								}
-							});
+						var sizes = document.querySelectorAll('input[type="checkbox"][name*="jit-image-size-whitelist["]');
+						var whitelist = '';
+						[].forEach.call(sizes, function(size) {
+							if (size.checked) {
+								if (whitelist !== '') whitelist += '&';
+								whitelist += encodeURIComponent(size.name) + '=' + encodeURIComponent('on');
+							}
+						});
 
-							log.innerHTML = '';
-							log.style.marginTop = '1em';
-							log.style.height = '200px';
-							log.style.overflow = 'auto';
-							log.style.border = '1px solid silver';
-							log.style.padding = '1em';
-							log.style.background = '#fff';
+						log.innerHTML = '';
+						log.style.marginTop = '1em';
+						log.style.height = '200px';
+						log.style.overflow = 'auto';
+						log.style.border = '1px solid silver';
+						log.style.padding = '1em';
+						log.style.background = '#fff';
 
-							this.disabled = true;
+						this.disabled = true;
 
-							xhr = new XMLHttpRequest();
-							xhr.open('POST', ajaxurl + '?action=jit_image_sizes_thumbnail_delete_count&nonce=<?php echo wp_create_nonce("wp-jit-image-sizes-count"); ?>');
-							xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-							xhr.addEventListener('load', function() {
-								var res = JSON.parse(this.responseText);
-								var b = document.createElement('b');
-								b.appendChild(document.createTextNode('Found '+res.count+' images to regenerate'));
-								log.appendChild(b);
-								log.appendChild(loading);
-								log.appendChild(document.createElement('br'));
-								log.appendChild(document.createElement('br'));
-								nonce = res.nonce;
-								regen();
-							});
-							xhr.send(whitelist);
-						} else {
-							check.click();
-							window.focus();
-						}
+						xhr = new XMLHttpRequest();
+						xhr.open('POST', ajaxurl + '?action=jit_image_sizes_thumbnail_delete_count&nonce=<?php echo wp_create_nonce("wp-jit-image-sizes-count"); ?>');
+						xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+						xhr.addEventListener('load', function() {
+							var res = JSON.parse(this.responseText);
+							var b = document.createElement('b');
+							b.appendChild(document.createTextNode('Found '+res.count+' images to regenerate'));
+							log.appendChild(b);
+							log.appendChild(loading);
+							log.appendChild(document.createElement('br'));
+							log.appendChild(document.createElement('br'));
+							nonce = res.nonce;
+							regen();
+						});
+						xhr.send(whitelist);
 					}
 				}
 
@@ -138,19 +121,17 @@ final class WP_JIT_Image_Size {
 							log.scrollTop = log.scrollHeight;
 						});
 						log.appendChild(document.createElement('br'));
-						check.removeAttribute('disabled');
+						btn.removeAttribute('disabled');
 						loading.parentNode.removeChild(loading);
 					});
 					xhr.send();
 				}
 
-				check.removeAttribute('disabled');
-				check.addEventListener('click', handleCheck);
+				btn.removeAttribute('disabled');
+				btn.addEventListener('click', handleCheck);
 			})();
 		</script>
-
-		<?php endif;
-	}
+	<?php }
 
 	public function setting_wp_jit_image_size_whitelist() {
 		$sizes = get_intermediate_image_sizes(); 
@@ -194,7 +175,23 @@ final class WP_JIT_Image_Size {
 				<?php 
 					settings_fields( $_REQUEST['page'] );
 					do_settings_sections( $_REQUEST['page']);
- 					submit_button(); 
+					?>
+					<p class="submit">
+						<input name="submit" id="submit" class="button button-primary" value="Save Changes" type="submit"> 
+						<?php if (!shell_exec('pwd')) : ?>
+		
+						<div class="error settings-error">
+							<p>PHP Exec support is needed to delete all thumbnails</p>
+						</div>
+			
+						<?php else: ?>
+
+						<button class="button" id="wp-jit-image-size-delete-thumbs">Save Changes and Delete Thumbnails</button>
+
+						<?php endif; ?>
+					</p>
+					<?php 
+ 					$this->setting_wp_jit_image_size_delete_thumbs();
  				?>
 			</form>
 		</div>
@@ -207,9 +204,6 @@ final class WP_JIT_Image_Size {
 		$cmd = 'php '.__DIR__.'/wp-cli.phar media regenerate --yes 2>&1';
 		exec($cmd, $ret);
 		array_shift($ret);
-		foreach($ret as $img) {
-
-		}
 		echo json_encode($ret);
 		exit;
 	}
